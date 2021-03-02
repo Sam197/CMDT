@@ -3,16 +3,87 @@ from classes import *  # pylint: disable=W0614
 from config import *  # pylint: disable=W0614
 import time
 from math import floor
-
-SCREENX = 1000
-SCREENY = 600
-
-#ytest
+from tkinter import *  # pylint: disable=W0614
+from tkinter import messagebox, filedialog
+if SERVER_CLIENT_ENABLED:
+    import client
 
 pygame.init()  # pylint: disable=no-member
 
 if not FORBIDDEN and BOND_LIMIT > 3:
     raise Exception("Can't have more than a triple bond...........")
+
+def outList(grid, entities):
+    gridOut = []
+    for row in grid:
+        for obj in row:
+            if obj.txt == None:
+                gridOut.append("ET\n")
+            else:
+                gridOut.append(f"{obj.txt}\n")
+        gridOut.append("NL\n")
+    entitiesOut = []
+    for obj in entities:
+        entitiesOut.append(f"{obj.startPos[0]}-{obj.startPos[1]}-{obj.endPos[0]}-{obj.endPos[1]}-{obj.numOfBonds}-\n")
+    
+    return gridOut, entitiesOut
+
+def inString(fullList):
+    grid = []
+    row = []
+    entities = []
+    x = 0
+    y = 0
+    for i, item in enumerate(fullList):
+        if i == 0:
+            continue
+        if item == "~\n":
+            ix = i
+            break
+        elif item == "ET\n":
+            row.append(Tile(x*GRIDTILESIZE, y*GRIDTILESIZE))
+        elif item == "NL\n":
+            grid.append(row)
+            del row
+            row = []
+            y += 1
+            x = -1
+        else:
+            row.append(TiledAtom(x*GRIDTILESIZE, y*GRIDTILESIZE, item[:-1]))
+        x += 1
+
+    for i in range(ix+1, len(fullList)):
+        curEntity = fullList[i].split("-")
+        entities.append(Line((int(curEntity[0]),int(curEntity[1])), (int(curEntity[2]),int(curEntity[3])), int(curEntity[4])))
+    
+    return grid, entities
+
+def save(grid, entities):
+    gOut, eOut = outList(grid, entities)
+    root = Tk()
+    root.withdraw()
+    root.filename = filedialog.asksaveasfile(mode = "w")
+    with open(root.filename.name, 'w') as outFile:
+        outFile.write(f"{SCREENX}-{SCREENY}-\n")
+        outFile.writelines(gOut)
+        outFile.write("~\n")
+        outFile.writelines(eOut)
+    messagebox.showinfo('Save', 'Saved Sucessfully')
+    root.destroy()
+
+def load():
+
+    root = Tk()
+    root.withdraw()
+    root.filename = filedialog.askopenfile(mode = "r")
+    name = root.filename.name
+    with open(name, "r") as inFile:
+        stringList = inFile.readlines()
+    root.destroy()
+    x, y, _ = stringList[0].split("-")
+    if int(x) != SCREENX or int(y) != SCREENY:
+        raise Exception("Different screen sizes")
+    return inString(stringList)
 
 def makeGrid():
     if SCREENX % GRIDTILESIZE != 0 or SCREENY % GRIDTILESIZE != 0:
@@ -39,6 +110,8 @@ def main():
     bondEdit = False
     reverseTxt = False
     erase = False
+
+    masterGrid, entities = load()
 
     running = True
 
@@ -162,6 +235,9 @@ def main():
             pygame.display.set_caption(str(int(1/(time.time()-start))))
         except:
             pass
+
+    
+    save(masterGrid, entities)
 
 if __name__ == "__main__":
     main()
