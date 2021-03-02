@@ -113,7 +113,7 @@ class Line:
         self.startGridY = floor(start[1]/GRIDTILESIZE)
         self.endGridX = floor(end[0]/GRIDTILESIZE)
         self.endGridY = floor(end[1]/GRIDTILESIZE)
-        self.numOfBonds = 1    #As in 1 is a single bond, 2 double, 3 triple, AND THE FORBIDDEN 4 QUADRUPLE BOND
+        self.numOfBonds = numOfBonds    #As in 1 is a single bond, 2 double, 3 triple, AND THE FORBIDDEN 4 QUADRUPLE BOND
         self.lineRect = None
         self.colour = BLACK
         self.orentation = None
