@@ -92,13 +92,15 @@ def save(grid, entities):
     gOut, eOut = outList(grid, entities)
     root = Tk()
     root.withdraw()
-    root.filename = filedialog.asksaveasfile(mode = "w")
+    root.filename = filedialog.asksaveasfile(mode = "w", defaultextension = ".txt")
     try:
+        s = time.time()
         with open(root.filename.name, 'w') as outFile:
             outFile.write(f"{SCREENX}-{SCREENY}-\n")
             outFile.writelines(gOut)
             outFile.write("~\n")
             outFile.writelines(eOut)
+        print(time.time()-s)
         messagebox.showinfo('Save', 'Saved Sucessfully')
     except:
         messagebox.showinfo("Did Not Save", "Unspecified Error") 
@@ -110,16 +112,28 @@ def load():
     root.withdraw()
     root.filename = filedialog.askopenfile(mode = "r")
     name = root.filename.name
+    s = time.time()
     with open(name, "r") as inFile:
         stringList = inFile.readlines()
     root.destroy()
     x, y, _ = stringList[0].split("-")
     if int(x) > SCREENX or int(y) > SCREENY:
         raise Exception("Loaing a bigger file into smaller screen bounds")
-    return inString(stringList)
+    pl = inString(stringList)
+    print(time.time()-s)
+    return pl
 
 def checkSave(grid, entities):
-    pass
+    root = Tk()
+    root.withdraw()
+    res =  messagebox.askyesnocancel("New File", "Would you like to save the current file?")
+    if res != None:
+        if res:
+            save(grid, entities)
+        grid = makeGrid()
+        entities = []
+    root.destroy()
+    return grid, entities
 
 def main():
 
@@ -218,6 +232,8 @@ def main():
                     save(masterGrid, entities)
                 elif event.key == pygame.K_o and event.mod & pygame.KMOD_CTRL:      # pylint: disable=no-member
                     masterGrid, entities = load()
+                elif event.key == pygame.K_n and event.mod & pygame.KMOD_CTRL:      # pylint: disable=no-member
+                   masterGrid, entities = checkSave(masterGrid, entities)
                 elif event.key == pygame.K_l:     # pylint: disable=no-member
                     if newLine:
                         newLine = False
@@ -237,7 +253,7 @@ def main():
                 elif event.key == pygame.K_n:       # pylint: disable=no-member
                     free_Entity = Atom(0,0, "N")
                     newAtom = True
-                elif event.key == pygame.K_a:
+                elif event.key == pygame.K_a:       # pylint: disable=no-member
                     free_Entity = Atom(0,0, "OOH")
                     newAtom = True
                 elif event.key == pygame.K_b:       # pylint: disable=no-member

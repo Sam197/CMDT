@@ -175,4 +175,3 @@ class Line:
                     pygame.draw.line(screen, self.colour, (x1+int(0.5*offset), y1), (x2+int(0.5*offset), y2), int(LINEWIDTH*GRIDTILESIZE/100))
                     pygame.draw.line(screen, self.colour, (x1-(2*offset), y1), (x2-(2*offset),y2), int(LINEWIDTH*GRIDTILESIZE/100))
                     pygame.draw.line(screen, self.colour, (x1+(2*offset), y1), (x2+(2*offset), y2), int(LINEWIDTH*GRIDTILESIZE/100))
-        
