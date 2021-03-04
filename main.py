@@ -13,15 +13,25 @@ pygame.init()  # pylint: disable=no-member
 if not FORBIDDEN and BOND_LIMIT > 3:
     raise Exception("Can't have more than a triple bond...........")
 
+def makeGrid():
+    if SCREENX % GRIDTILESIZE != 0 or SCREENY % GRIDTILESIZE != 0:
+        raise Exception("Screen not divisble by TileSize")
+    masterGrid = []
+    for y in range(0, SCREENY, GRIDTILESIZE):
+        row = []
+        for x in range(0, SCREENX, GRIDTILESIZE):
+            row.append(Tile(x, y))  
+        masterGrid.append(row)
+        del row
+
+    return masterGrid
+
 def outList(grid, entities):
     gridOut = []
     for row in grid:
         for obj in row:
-            if obj.txt == None:
-                gridOut.append("ET\n")
-            else:
-                gridOut.append(f"{obj.txt}\n")
-        gridOut.append("NL\n")
+            if obj.txt != None:
+                gridOut.append(f"{obj.x}-{obj.y}-{obj.txt}-\n")
     entitiesOut = []
     for obj in entities:
         entitiesOut.append(f"{obj.startPos[0]}-{obj.startPos[1]}-{obj.endPos[0]}-{obj.endPos[1]}-{obj.numOfBonds}-\n")
@@ -29,34 +39,54 @@ def outList(grid, entities):
     return gridOut, entitiesOut
 
 def inString(fullList):
-    grid = []
-    row = []
+    grid = makeGrid()
     entities = []
-    x = 0
-    y = 0
     for i, item in enumerate(fullList):
         if i == 0:
             continue
         if item == "~\n":
             ix = i
             break
-        elif item == "ET\n":
-            row.append(Tile(x*GRIDTILESIZE, y*GRIDTILESIZE))
-        elif item == "NL\n":
-            grid.append(row)
-            del row
-            row = []
-            y += 1
-            x = -1
         else:
-            row.append(TiledAtom(x*GRIDTILESIZE, y*GRIDTILESIZE, item[:-1]))
-        x += 1
+            curObj = item.split("-")
+            newObj = TiledAtom(int(curObj[0]), int(curObj[1]), curObj[2])
+            grid[newObj.gridY][newObj.gridX] = newObj
 
     for i in range(ix+1, len(fullList)):
         curEntity = fullList[i].split("-")
         entities.append(Line((int(curEntity[0]),int(curEntity[1])), (int(curEntity[2]),int(curEntity[3])), int(curEntity[4])))
     
     return grid, entities
+
+# def inString(fullList):
+#     grid = []
+#     row = []
+#     entities = []
+#     x = 0
+#     y = 0
+#     for i, item in enumerate(fullList):
+#         if i == 0:
+#             continue
+#         if item == "~\n":
+#             ix = i
+#             break
+#         elif item == "ET\n":
+#             row.append(Tile(x*GRIDTILESIZE, y*GRIDTILESIZE))
+#         elif item == "NL\n":
+#             grid.append(row)
+#             del row
+#             row = []
+#             y += 1
+#             x = -1
+#         else:
+#             row.append(TiledAtom(x*GRIDTILESIZE, y*GRIDTILESIZE, item[:-1]))
+#         x += 1
+
+#     for i in range(ix+1, len(fullList)):
+#         curEntity = fullList[i].split("-")
+#         entities.append(Line((int(curEntity[0]),int(curEntity[1])), (int(curEntity[2]),int(curEntity[3])), int(curEntity[4])))
+    
+#     return grid, entities
 
 def save(grid, entities):
     gOut, eOut = outList(grid, entities)
@@ -84,25 +114,12 @@ def load():
         stringList = inFile.readlines()
     root.destroy()
     x, y, _ = stringList[0].split("-")
-    if int(x) != SCREENX or int(y) != SCREENY:
-        raise Exception("Different screen sizes")
+    if int(x) > SCREENX or int(y) > SCREENY:
+        raise Exception("Loaing a bigger file into smaller screen bounds")
     return inString(stringList)
 
 def checkSave(grid, entities):
     pass
-
-def makeGrid():
-    if SCREENX % GRIDTILESIZE != 0 or SCREENY % GRIDTILESIZE != 0:
-        raise Exception("Screen not divisble by TileSize")
-    masterGrid = []
-    for y in range(0, SCREENY, GRIDTILESIZE):
-        row = []
-        for x in range(0, SCREENX, GRIDTILESIZE):
-            row.append(Tile(x, y))  
-        masterGrid.append(row)
-        del row
-
-    return masterGrid
 
 def main():
 
