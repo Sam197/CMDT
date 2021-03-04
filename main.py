@@ -111,12 +111,14 @@ def main():
     reverseTxt = False
     erase = False
 
-    masterGrid, entities = load()
+    #masterGrid, entities = load()
 
+    clock = pygame.time.Clock()
     running = True
 
     while running:
 
+        clock.tick(60)
         start = time.time()
         screen.fill(WHITE)
 
