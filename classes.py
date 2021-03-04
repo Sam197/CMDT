@@ -164,10 +164,10 @@ class Line:
             if self.numOfBonds == 3:
                 offset = int(BASE_BOND_OFFSET_TRIPLE*GRIDTILESIZE/100)
             if self.orentation == "Vertical":
-                pygame.draw.line(screen, self.colour, (x1-offset, y1), (x2-offset,y2), int(LINEWIDTH*GRIDTILESIZE/100))
+                self.lineRect = pygame.draw.line(screen, self.colour, (x1-offset, y1), (x2-offset,y2), int(LINEWIDTH*GRIDTILESIZE/100))
                 pygame.draw.line(screen, self.colour, (x1+offset, y1), (x2+offset, y2), int(LINEWIDTH*GRIDTILESIZE/100))
             else:
-                pygame.draw.line(screen, self.colour, (x1, y1-offset), (x2, y2-offset), int(LINEWIDTH*GRIDTILESIZE/100))
+                self.lineRect = pygame.draw.line(screen, self.colour, (x1, y1-offset), (x2, y2-offset), int(LINEWIDTH*GRIDTILESIZE/100))
                 pygame.draw.line(screen, self.colour, (x1, y1+offset), (x2, y2+offset), int(LINEWIDTH*GRIDTILESIZE/100))
             if FORBIDDEN and self.numOfBonds == 4:
                 if self.orentation == "Vertical":

@@ -63,12 +63,15 @@ def save(grid, entities):
     root = Tk()
     root.withdraw()
     root.filename = filedialog.asksaveasfile(mode = "w")
-    with open(root.filename.name, 'w') as outFile:
-        outFile.write(f"{SCREENX}-{SCREENY}-\n")
-        outFile.writelines(gOut)
-        outFile.write("~\n")
-        outFile.writelines(eOut)
-    messagebox.showinfo('Save', 'Saved Sucessfully')
+    try:
+        with open(root.filename.name, 'w') as outFile:
+            outFile.write(f"{SCREENX}-{SCREENY}-\n")
+            outFile.writelines(gOut)
+            outFile.write("~\n")
+            outFile.writelines(eOut)
+        messagebox.showinfo('Save', 'Saved Sucessfully')
+    except:
+        messagebox.showinfo("Did Not Save", "Unspecified Error") 
     root.destroy()
 
 def load():
@@ -84,6 +87,9 @@ def load():
     if int(x) != SCREENX or int(y) != SCREENY:
         raise Exception("Different screen sizes")
     return inString(stringList)
+
+def checkSave(grid, entities):
+    pass
 
 def makeGrid():
     if SCREENX % GRIDTILESIZE != 0 or SCREENY % GRIDTILESIZE != 0:
@@ -191,7 +197,11 @@ def main():
                 bondEdit = False
                 reverseTxt = False
                 erase = False
-                if event.key == pygame.K_l:     # pylint: disable=no-member
+                if event.key == pygame.K_s and event.mod & pygame.KMOD_CTRL:       # pylint: disable=no-member
+                    save(masterGrid, entities)
+                elif event.key == pygame.K_o and event.mod & pygame.KMOD_CTRL:      # pylint: disable=no-member
+                    masterGrid, entities = load()
+                elif event.key == pygame.K_l:     # pylint: disable=no-member
                     if newLine:
                         newLine = False
                         free_Entity = None
@@ -209,6 +219,9 @@ def main():
                     newAtom = True
                 elif event.key == pygame.K_n:       # pylint: disable=no-member
                     free_Entity = Atom(0,0, "N")
+                    newAtom = True
+                elif event.key == pygame.K_a:
+                    free_Entity = Atom(0,0, "OOH")
                     newAtom = True
                 elif event.key == pygame.K_b:       # pylint: disable=no-member
                     if bondEdit:
@@ -239,7 +252,7 @@ def main():
             pass
 
     
-    save(masterGrid, entities)
+    #save(masterGrid, entities)
 
 if __name__ == "__main__":
     main()
