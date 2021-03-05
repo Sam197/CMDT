@@ -27,8 +27,10 @@ def main():
     reverseTxt = False
     erase = False
 
-    #masterGrid, entities = load()
+    refGridEnt = (masterGrid, entities)
 
+    #masterGrid, entities = load()
+    st = time.time()
     clock = pygame.time.Clock()
     running = True
 
@@ -37,6 +39,16 @@ def main():
         clock.tick(60)
         start = time.time()
         screen.fill(WHITE)
+
+        if SERVER_CLIENT_ENABLED:
+            res = client.update()
+            if res != None:
+                masterGrid, entities = inString(res)
+
+        if SERVER_CLIENT_ENABLED:
+            if time.time() - st >= 1:
+                client.send_string(outList(masterGrid, entities))
+                st = time.time()
 
         for row in masterGrid:
             for obj in row:
