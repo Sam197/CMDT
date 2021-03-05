@@ -42,16 +42,18 @@ def getMinSize(grid, entities):
     return maxX, maxY
 
 def outList(grid, entities):
-    gridOut = []
+    out = []
+    mX, mY = getMinSize(grid, entities)
+    out.append(f"{mX*GRIDTILESIZE}-{mY*GRIDTILESIZE}-\n")
     for row in grid:
         for obj in row:
             if obj.txt != None:
-                gridOut.append(f"{obj.x}-{obj.y}-{obj.txt}-\n")
-    entitiesOut = []
+                out.append(f"{obj.x}-{obj.y}-{obj.txt}-\n")
+    out.append("~\n")
     for obj in entities:
-        entitiesOut.append(f"{obj.startPos[0]}-{obj.startPos[1]}-{obj.endPos[0]}-{obj.endPos[1]}-{obj.numOfBonds}-\n")
+        out.append(f"{obj.startPos[0]}-{obj.startPos[1]}-{obj.endPos[0]}-{obj.endPos[1]}-{obj.numOfBonds}-\n")
     
-    return gridOut, entitiesOut
+    return out
 
 def inString(fullList):
     grid = makeGrid()
@@ -104,18 +106,14 @@ def inString(fullList):
 #     return grid, entities
 
 def save(grid, entities):
-    gOut, eOut = outList(grid, entities)
+    out = outList(grid, entities)
     root = Tk()
     root.withdraw()
     root.filename = filedialog.asksaveasfile(mode = "w", defaultextension = ".txt")
-    mX, mY = getMinSize(grid, entities)
     try:
         s = time.time()
         with open(root.filename.name, 'w') as outFile:
-            outFile.write(f"{mX*GRIDTILESIZE}-{mY*GRIDTILESIZE}-\n")
-            outFile.writelines(gOut)
-            outFile.write("~\n")
-            outFile.writelines(eOut)
+            outFile.writelines(out)
         print(time.time()-s)
         messagebox.showinfo('Save', 'Saved Sucessfully')
     except:
