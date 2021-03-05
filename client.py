@@ -1,2 +1,2 @@
 import socket
-from config import *        # pylint: disable=W0614
+from clientconfig import *        # pylint: disable=W0614
