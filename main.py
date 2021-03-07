@@ -43,12 +43,12 @@ def main():
         if SERVER_CLIENT_ENABLED:
             res = client.update()
             if res != None:
-                masterGrid, entities = inString(res)
+                masterGrid, entities = client.recv_msg(res, masterGrid, entities)
 
-        if SERVER_CLIENT_ENABLED:
-            if time.time() - st >= 1:
-                client.send_string(outList(masterGrid, entities))
-                st = time.time()
+        # if SERVER_CLIENT_ENABLED:
+        #     if time.time() - st >= 1:
+        #         client.send_string(outList(masterGrid, entities))
+        #         st = time.time()
 
         for row in masterGrid:
             for obj in row:
@@ -79,7 +79,11 @@ def main():
                             if obj.isCollide(pygame.mouse.get_pos()):
                                 if bondEdit:
                                     obj.update_Bond_Number()
+                                    if SERVER_CLIENT_ENABLED:
+                                        client.send(f"LB-{obj.startPos[0]}-{obj.startPos[1]}-{obj.endPos[0]}-{obj.endPos[1]}-{obj.numOfBonds}")
                                 elif erase:
+                                    if SERVER_CLIENT_ENABLED:
+                                        client.send(f"LE-{obj.startPos[0]}-{obj.startPos[1]}-{obj.endPos[0]}-{obj.endPos[1]}")
                                     entities.remove(obj)
                     if not bondEdit:
                         x, y = pygame.mouse.get_pos()                        
@@ -88,6 +92,8 @@ def main():
                                 if obj.isCollide(screen, (x,y)):
                                     if newAtom:
                                         masterGrid[ly][lx] = TiledAtom(obj.x, obj.y, free_Entity.txt)
+                                        if SERVER_CLIENT_ENABLED:
+                                            client.send(f"T-{obj.x}-{obj.y}-{free_Entity.txt}")
                                         free_Entity = None            
                                         newAtom = False
                                     elif newLine and not drawLine:
@@ -96,6 +102,9 @@ def main():
                                         drawLine = True
                                     elif newLine and drawLine:
                                         entities.append(Line(free_Entity.startPos, obj.boundsRect.center))
+                                        if SERVER_CLIENT_ENABLED:
+                                            x, y = obj.boundsRect.center
+                                            client.send(f"L-{free_Entity.startPos[0]}-{free_Entity.startPos[1]}-{x}-{y}-1")
                                         obj.hasLine = True
                                         free_Entity = Line(obj.boundsRect.center)
                                     elif reverseTxt:
