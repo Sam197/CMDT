@@ -3,6 +3,7 @@ from clientConfig import *        # pylint: disable=W0614
 from config import SERVER_CLIENT_ENABLED
 from tkinter import messagebox
 import errno
+from classes import Line, TiledAtom, Tile
 
 def connect():
 
@@ -32,8 +33,34 @@ def send_string(inList):
         string += "/"
     send(string[:-1])
 
-def msg_to_list(msg):
-    return msg.split("/")
+def recv_msg(msg, grid, entities):
+    if msg[0] == "T":
+        curObj = msg
+        newObj = TiledAtom(int(curObj[1]), int(curObj[2]), curObj[3])
+        grid[newObj.gridY][newObj.gridX] = newObj
+    elif msg[0] == "L":
+        entities.append(Line((int(msg[1]),int(msg[2])), (int(msg[3]),int(msg[4])), int(msg[5])))
+    elif msg[0] == "TE":
+        newObj = Tile(int(msg[1]), int(msg[2]))
+        grid[newObj.gridY][newObj.gridX] = newObj
+    elif msg[0] == "LE" or "LB":
+        for obj in entities:
+            sPos = (int(msg[1]), int(msg[2]))
+            ePos = (int(msg[3]), int(msg[4]))
+            if obj.startPos == sPos and obj.endPos == ePos:
+                if msg[0] == "LE":
+                    entities.remove(obj)
+                elif msg[0] == "LB":
+                    obj.update_Bond_Number()
+                break
+
+    return grid, entities
+
+def bulk_send(outList):
+    pass
+
+# def msg_to_list(msg):
+#     return msg.split("/")
 
 def update():
     try:
@@ -42,7 +69,7 @@ def update():
             print("Connection closed by sever")
         message_length = int(message_header.decode(protocol).strip())
         message = client_socket.recv(message_length).decode(protocol)
-        return msg_to_list(message) 
+        return message.split("-")
 
     except IOError as e:
         if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:

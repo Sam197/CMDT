@@ -132,6 +132,8 @@ def main():
                     save(masterGrid, entities)
                 elif event.key == pygame.K_o and event.mod & pygame.KMOD_CTRL:      # pylint: disable=no-member
                     masterGrid, entities = load()
+                    if SERVER_CLIENT_ENABLED:
+                        client.bulk_send(outList(masterGrid, entities))
                 elif event.key == pygame.K_n and event.mod & pygame.KMOD_CTRL:      # pylint: disable=no-member
                    masterGrid, entities = checkSave(masterGrid, entities)
                 elif event.key == pygame.K_l:     # pylint: disable=no-member
